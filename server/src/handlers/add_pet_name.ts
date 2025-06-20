@@ -1,15 +1,22 @@
 
+import { db } from '../db';
+import { petNamesTable } from '../db/schema';
 import { type AddPetNameInput, type PetName } from '../schema';
 
-export async function addPetName(input: AddPetNameInput): Promise<PetName> {
-    // This is a placeholder declaration! Real code should be implemented here.
-    // The goal of this handler is to add a new custom pet name to the database.
-    // This allows users to contribute their own pet names to the collection.
-    
-    return Promise.resolve({
-        id: Math.floor(Math.random() * 10000), // Placeholder ID
+export const addPetName = async (input: AddPetNameInput): Promise<PetName> => {
+  try {
+    // Insert pet name record
+    const result = await db.insert(petNamesTable)
+      .values({
         name: input.name,
-        type: input.type,
-        created_at: new Date()
-    } as PetName);
-}
+        type: input.type
+      })
+      .returning()
+      .execute();
+
+    return result[0];
+  } catch (error) {
+    console.error('Pet name addition failed:', error);
+    throw error;
+  }
+};
